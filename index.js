@@ -10,6 +10,7 @@ connect();
 
 const usersRoute = require('./routes/users');
 const authRoute = require('./routes/auth');
+const postsRoute = require('./routes/posts');
 const PORT = process.env.PORT;
 
 app.use(express.json());
@@ -18,6 +19,7 @@ app.use(morgan('common'));
 
 app.use('/api/users', usersRoute);
 app.use('/api/auth', authRoute);
+app.use('/api/posts', postsRoute);
 
 app.listen(PORT, () => {
   console.log(`running on http://localhost:${PORT}`);
