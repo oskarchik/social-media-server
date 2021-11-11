@@ -5,18 +5,21 @@ const bcrypt = require('bcrypt');
 //TODO --- error messages need to be changed to more generic message
 
 router.post('/signup', async (req, res) => {
-  const { email, username, password } = req.body;
+  const { device, firstName, lastName, password, gender, dateOfBirth } = req.body;
 
-  if (!email || !username || !password) {
-    return res.status(400).json({ error: 'all fields are mandatory' });
+  if (!device || !password) {
+    return res.status(400).json({ error: 'some fields are required' });
   }
 
   try {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(password, salt);
     const newUser = await new User({
-      email,
-      username,
+      device,
+      firstName,
+      lastName,
+      gender,
+      dateOfBirth,
       password: hash,
     });
     await newUser.save();
@@ -27,12 +30,12 @@ router.post('/signup', async (req, res) => {
 });
 
 router.post('/signin', async (req, res) => {
-  const { email, password } = req.body;
-  if (!email || !password) {
+  const { device, password } = req.body;
+  if (!device || !password) {
     return res.status(400).json({ error: 'all fields are mandatory' });
   }
   try {
-    const existingUser = await User.findOne({ email });
+    const existingUser = await User.findOne({ device });
     if (!existingUser) {
       return res.status(404).json({ error: 'user not found' });
     }
