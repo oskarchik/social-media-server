@@ -3,14 +3,17 @@ const Schema = mongoose.Schema;
 
 const userSchema = new Schema(
   {
-    username: {
+    firstName: {
       type: String,
-      required: true,
       min: 2,
       max: 15,
-      unique: true,
     },
-    email: {
+    lastName: {
+      type: String,
+      min: 2,
+      max: 15,
+    },
+    device: {
       type: String,
       required: true,
       min: 2,
@@ -20,6 +23,14 @@ const userSchema = new Schema(
     password: {
       type: String,
       required: true,
+    },
+    dateOfBirth: {
+      type: String,
+      required: true,
+    },
+    gender: {
+      type: String,
+      enum: ['female', 'male', 'custom'],
     },
     avatar: {
       type: String,
