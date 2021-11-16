@@ -14,8 +14,18 @@ router.post('/', async (req, res) => {
       description,
       image,
     });
-    newPost.save();
-    return res.status(200).json({ post: newPost });
+    const savedPost = await newPost.save();
+    const user = await User.findById({ _id: userId });
+    if (!user) {
+      return res.status(404).json({ error: 'user not found to associate post' });
+    }
+    const updateUser = await User.findByIdAndUpdate(
+      user._id,
+      { $push: { posts: savedPost._id } },
+
+      { new: true }
+    );
+    return res.status(200).json({ post: newPost, user: updateUser });
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -94,7 +104,7 @@ router.get('/:id', async (req, res) => {
   try {
     const post = await Post.findById(id).populate({
       path: 'userId',
-      select: { _id: 1, username: 1, email: 1, avatar: 1, coverPic: 1, followers: 1, following: 1 },
+      select: { _id: 1, firstName: 1, lastName: 1, email: 1, avatar: 1, coverPic: 1, followers: 1, following: 1 },
     });
     if (!post) {
       return res.status(404).json({ error: 'Post not found' });
@@ -105,12 +115,14 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-//get timeline
-router.get('/timeline/all', async (req, res) => {
-  const { userId } = req.body;
+//get timeline by userId
+router.get('/:id/timeline/all', async (req, res) => {
+  const userId = req.params.id;
+  console.log(req.params.id);
+  console.log(userId);
   try {
     const user = await User.findById(userId);
-
+    console.log(user);
     const userPosts = await Post.find({ userId: user._id });
     const friendsPosts = await Promise.all(
       user.following.map((friendId) => {

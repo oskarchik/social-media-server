@@ -110,6 +110,9 @@ router.get('/:id', async (req, res) => {
   const userId = req.params.id;
   try {
     const existingUser = await User.findById({ _id: userId }).select(['-password', '-isAdmin', '-createdAt']);
+    // .populate({ path: 'followers', select: 'firstName lastName dateOfBirth avatar' })
+    // .populate({ path: 'posts', select: 'userId description image ' });
+    // .populate(['posts', 'following']);
     if (!existingUser) {
       return res.status(404).json({ error: 'user not found' });
     }
@@ -121,14 +124,14 @@ router.get('/:id', async (req, res) => {
 
 //follow user
 router.put('/:id/follow', async (req, res) => {
-  const userId = req.params.id;
+  const userId = req.params.id; //current user
 
   if (req.body.userId !== userId) {
     try {
-      const user = await User.findById({ _id: userId });
-      const followUser = await User.findById({ _id: req.body.userId });
+      const user = await User.findById({ _id: userId }); //current user
+      const followUser = await User.findById({ _id: req.body.userId }); //user to follow
 
-      if (!user.followers.includes(req.body.userId)) {
+      if (!user.following.includes(req.body.userId)) {
         const updatedUser = await User.findByIdAndUpdate(
           user._id,
           { $push: { following: req.body.userId } },

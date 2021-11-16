@@ -40,6 +40,7 @@ const userSchema = new Schema(
       type: String,
       default: '',
     },
+    posts: [{ type: mongoose.Types.ObjectId, ref: 'Post', default: [] }],
     followers: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
     following: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
     isAdmin: {
