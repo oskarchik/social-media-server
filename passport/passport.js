@@ -11,7 +11,7 @@ passport.serializeUser((user, done) => done(null, user._id));
 passport.deserializeUser(async (userId, done) => {
   try {
     const existingUser = await User.findById(userId);
-    return done, existingUser;
+    return done(null, existingUser);
   } catch (error) {
     return done(error);
   }
@@ -27,8 +27,10 @@ passport.use(
     },
     async (req, device, password, done) => {
       const { firstName, lastName, dateOfBirth, gender } = req.body;
+      console.log('passport', device, password);
       try {
-        const previousUser = User.findOne({ device });
+        const previousUser = await User.findOne({ device });
+        console.log('previous', previousUser);
         if (previousUser) {
           const error = new Error('User already exists');
           return done(error);
