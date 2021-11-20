@@ -12,6 +12,7 @@ const getUser = async (user) => {
 
 const signUpPost = async (req, res, next) => {
   const { device, firstName, lastName, password, gender, dateOfBirth } = req.body;
+  console.log(req.body);
   if (!device || !password) {
     return res.status(400).json({ error: 'some fields are required' });
   }
@@ -28,7 +29,6 @@ const signUpPost = async (req, res, next) => {
 };
 
 const signInPost = async (req, res, next) => {
-  console.log(req.session);
   passport.authenticate('login', (error, user) => {
     if (error) {
       return res.status(403).json({ error: error.message });
@@ -37,7 +37,6 @@ const signInPost = async (req, res, next) => {
       if (error) {
         return res.json({ error: error.message });
       }
-
       const userData = await getUser(user);
 
       return res.status(200).json({ user: userData });
@@ -45,15 +44,31 @@ const signInPost = async (req, res, next) => {
   })(req, res, next);
 };
 
-const signOutPost = async (req, res, next) => {
+const signOutPost = (req, res, next) => {
   if (req.user) {
-    req.logOut();
+    req.logout();
+
     req.session.destroy(() => {
       res.clearCookie('connect.sid');
+
+      return res.status(200).json({ message: 'Logout successful' });
     });
-    return res.status(200).json({ message: 'Successful sing out' });
   } else {
-    return res.status(401).json({ error: 'Unexpected error' });
+    return res.status(401).json({ message: 'Unexpected error' });
+  }
+};
+
+const checkSessionGet = async (req, res, next) => {
+  if (!req.user) {
+    return res.status(401).json({ error: 'No user found' });
+  }
+  try {
+    const userData = await getUser(req.user);
+
+    console.log('checksession', userData);
+    return res.status(200).json({ user: userData });
+  } catch (error) {
+    return res.json({ error: error });
   }
 };
 
@@ -61,4 +76,5 @@ module.exports = {
   signUpPost,
   signInPost,
   signOutPost,
+  checkSessionGet,
 };

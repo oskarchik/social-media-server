@@ -6,7 +6,6 @@ const cors = require('cors');
 const passport = require('passport');
 const session = require('express-session');
 const MongoStore = require('connect-mongo');
-require('./passport/passport');
 
 const connect = require('./db');
 
@@ -14,8 +13,9 @@ const usersRoute = require('./routes/users');
 const authRoute = require('./routes/auth');
 const postsRoute = require('./routes/posts');
 
-const app = express();
 connect();
+require('./passport/passport');
+const app = express();
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -24,11 +24,18 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
 app.use(helmet());
 app.use(morgan('common'));
+
+app.use(
+  cors({
+    origin: ['http://localhost:3000'],
+    credentials: true,
+  })
+);
+
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(
   session({
@@ -36,19 +43,11 @@ app.use(
     resave: false,
     saveUninitialized: false,
     cookie: {
-      path: '/',
-      maxAge: 24 * 60 * 601000,
+      maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
       secure: false,
-      sameSite: false,
     },
-    store: new MongoStore({ mongoUrl: process.env.MONGO_URI }),
-  })
-);
-app.use(
-  cors({
-    origin: 'http://localhost:3000',
-    credentials: true,
+    store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
   })
 );
 app.use(passport.initialize());

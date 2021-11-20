@@ -95,7 +95,7 @@ const postDelete = async (req, res) => {
 const postGetById = async (req, res) => {
   const { id } = req.params;
   if (!id) {
-    return res.status(404).json({ error: 'user not found' });
+    return res.status(404).json({ error: 'post not found' });
   }
   try {
     const post = await Post.findById(id).populate({
@@ -111,17 +111,40 @@ const postGetById = async (req, res) => {
   }
 };
 
+const postsUserGetAll = async (req, res) => {
+  const { id } = req.params;
+  if (!id) {
+    return res.status(404).json({ error: 'user not found' });
+  }
+  try {
+    const user = await User.findById(id).populate({ path: 'posts', populate: { path: 'userId' } });
+
+    const userPosts = user.posts;
+    if (!userPosts || userPosts.length < 1) {
+      return res.status(200).json({ message: 'User does not have any post published' });
+    }
+
+    return res.status(200).json(userPosts);
+  } catch (error) {
+    return res.status(500).json({ error });
+  }
+};
+
 const timeLineByIdUserGet = async (req, res) => {
   const userId = req.params.id;
-  console.log(req.params.id);
-  console.log(userId);
+
   try {
     const user = await User.findById(userId);
-    console.log(user);
-    const userPosts = await Post.find({ userId: user._id });
+
+    const userPosts = await Post.find({ userId: user._id }).populate({ path: 'userId' });
     const friendsPosts = await Promise.all(
       user.following.map((friendId) => {
-        return Post.find({ userId: friendId });
+        return Post.find({ userId: friendId }).populate({
+          path: 'userId',
+          populate: {
+            path: 'posts',
+          },
+        });
       })
     );
 
@@ -177,6 +200,7 @@ module.exports = {
   postUpdate,
   postDelete,
   postGetById,
+  postsUserGetAll,
   timeLineByIdUserGet,
   postLikeByIdPut,
 };
