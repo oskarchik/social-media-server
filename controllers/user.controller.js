@@ -129,66 +129,169 @@ const userGetAll = async (req, res) => {
   }
 };
 
-const followUserUpdate = async (req, res) => {
+const sendContactRequestUpdate = async (req, res) => {
   const userId = req.params.id; //current user
 
-  if (req.body.userId !== userId) {
+  if (req.body.contactRequestId !== userId) {
     try {
       const user = await User.findById({ _id: userId }); //current user
-      const followUser = await User.findById({ _id: req.body.userId }); //user to follow
+      const requestedUser = await User.findById({ _id: req.body.contactRequestId }); //user to follow
 
-      if (!user.following.includes(req.body.userId)) {
+      if (!user.contacts.includes(req.body.contactRequestId)) {
         const updatedUser = await User.findByIdAndUpdate(
           user._id,
-          { $push: { following: req.body.userId } },
+          { $push: { sentRequests: req.body.contactRequestId } },
           { new: true }
         );
-        const updatedFollowUser = await User.findByIdAndUpdate(
-          followUser._id,
-          { $push: { followers: userId } },
+        const updatedRequestedUser = await User.findByIdAndUpdate(
+          requestedUser._id,
+          { $push: { receivedRequests: userId } },
           { new: true }
         );
-        console.log(updatedUser, updatedFollowUser);
-        return res.status(200).json({ msg: 'user followed' });
+        console.log(updatedUser, updatedRequestedUser);
+        return res.status(200).json({ user: updatedUser });
       } else {
-        return res.status(403).json({ error: 'User is already followed' });
+        return res.status(403).json({ error: 'User is already a contact' });
       }
     } catch (error) {
       return res.status(500).json({ error: 'error' });
     }
   } else {
-    return res.status(403).json({ error: 'You can not follow yourself' });
+    return res.status(403).json({ error: 'You can not contact yourself' });
   }
 };
 
-const unfollowUserUpdate = async (req, res) => {
+const removeContactUpdate = async (req, res) => {
   const userId = req.params.id;
-
-  if (req.body.userId !== userId) {
+  console.log(req.body);
+  if (req.body.contactId !== userId) {
     try {
       const user = await User.findById({ _id: userId });
-      const followUser = await User.findById({ _id: req.body.userId });
-      if (user.following.includes(req.body.userId)) {
+      const contact = await User.findById({ _id: req.body.contactId });
+
+      if (user.contacts.includes(req.body.contactId)) {
         const updatedUser = await User.findByIdAndUpdate(
           user._id,
-          { $pull: { following: req.body.userId } },
+          { $pull: { contacts: req.body.contactId } },
+          { new: true }
+        )
+          .populate('contacts')
+          .populate('receivedRequests')
+          .populate('posts');
+        const updatedContactUser = await User.findByIdAndUpdate(
+          contact._id,
+          { $pull: { contacts: userId } },
           { new: true }
         );
-        const updatedFollowUser = await User.findByIdAndUpdate(
-          followUser._id,
-          { $pull: { followers: userId } },
-          { new: true }
-        );
-        console.log(updatedUser, updatedFollowUser);
-        return res.status(200).json({ msg: 'user unfollowed' });
+        console.log(updatedUser, updatedContactUser);
+        return res.status(200).json({ user: updatedUser });
       } else {
-        return res.status(403).json({ error: 'User is not followed' });
+        return res.status(403).json({ error: 'User is not a contact' });
       }
     } catch (error) {
       return res.status(500).json({ error: 'error' });
     }
   } else {
-    return res.status(403).json({ error: 'You can not unfollow yourself' });
+    return res.status(403).json({ error: 'You can not delete yourself' });
+  }
+};
+
+const acceptContactRequest = async (req, res) => {
+  const userId = req.params.id;
+  console.log('params', userId);
+  console.log(req.body.reqUserId);
+  if (req.body.reqUserId !== userId) {
+    try {
+      const user = await User.findById({ _id: userId });
+      const contact = await User.findById({ _id: req.body.reqUserId });
+
+      if (!user.receivedRequests.includes(req.body.reqUserId)) {
+        return res.status(400).json({ error: 'User is not in your received requests' });
+      }
+      if (!contact.sentRequests.includes(userId)) {
+        return res.status(400).json({ error: `You didn't send a request to this user` });
+      }
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          $push: { contacts: req.body.reqUserId },
+          $pull: {
+            receivedRequests: req.body.reqUserId,
+          },
+        },
+        {
+          new: true,
+        }
+      )
+        .populate('contacts')
+        .populate('receivedRequests')
+        .populate('posts');
+      const updateContact = await User.findByIdAndUpdate(
+        req.body.reqUserId,
+        {
+          $push: {
+            contacts: userId,
+          },
+          $pull: {
+            sentRequests: userId,
+          },
+        },
+        { new: true }
+      );
+
+      return res.status(200).json({ user: updatedUser });
+    } catch (error) {
+      return res.status(500).json({ error: 'Unexpected error' });
+    }
+  } else {
+    return res.status(403).json({ error: 'You can not accept yourself' });
+  }
+};
+const declineContactRequest = async (req, res) => {
+  const userId = req.params.id;
+  console.log('params', userId);
+  console.log(req.body.reqUserId);
+  if (req.body.reqUserId !== userId) {
+    try {
+      const user = await User.findById({ _id: userId });
+      const contact = await User.findById({ _id: req.body.reqUserId });
+
+      if (!user.receivedRequests.includes(req.body.reqUserId)) {
+        return res.status(400).json({ error: 'User is not in your received requests' });
+      }
+      if (!contact.sentRequests.includes(userId)) {
+        return res.status(400).json({ error: `You didn't send a request to this user` });
+      }
+      const updateUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          $pull: {
+            receivedRequests: req.body.reqUserId,
+          },
+        },
+        {
+          new: true,
+        }
+      )
+        .populate('contacts')
+        .populate('receivedRequests')
+        .populate('posts');
+      const updateContact = await User.findByIdAndUpdate(
+        req.body.reqUserId,
+        {
+          $pull: {
+            sentRequests: userId,
+          },
+        },
+        { new: true }
+      );
+
+      return res.status(200).json({ user: updateUser });
+    } catch (error) {
+      return res.status(500).json({ error: 'Unexpected error' });
+    }
+  } else {
+    return res.status(403).json({ error: 'You can not accept yourself' });
   }
 };
 module.exports = {
@@ -197,6 +300,8 @@ module.exports = {
   userDelete,
   userGet,
   userGetAll,
-  followUserUpdate,
-  unfollowUserUpdate,
+  sendContactRequestUpdate,
+  removeContactUpdate,
+  acceptContactRequest,
+  declineContactRequest,
 };

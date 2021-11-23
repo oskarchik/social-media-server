@@ -5,7 +5,7 @@ const User = require('../models/User');
 //TODO --- error messages need to be changed to more generic message
 
 const getUser = async (user) => {
-  const userData = await User.findById(user._id).populate('following').populate('posts');
+  const userData = await User.findById(user._id).populate('contacts').populate('posts').populate('receivedRequests');
   userData.password = null;
   return userData;
 };
@@ -65,7 +65,6 @@ const checkSessionGet = async (req, res, next) => {
   try {
     const userData = await getUser(req.user);
 
-    console.log('checksession', userData);
     return res.status(200).json({ user: userData });
   } catch (error) {
     return res.json({ error: error });

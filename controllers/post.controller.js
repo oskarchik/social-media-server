@@ -3,7 +3,7 @@ const User = require('../models/User');
 
 const createPost = async (req, res) => {
   const { description, image, userId } = req.body;
-  if (!description || !image) {
+  if (!description && !image) {
     return res.status(400).json({ error: 'description or image is needed' });
   }
   try {
@@ -138,8 +138,8 @@ const timeLineByIdUserGet = async (req, res) => {
 
     const userPosts = await Post.find({ userId: user._id }).populate({ path: 'userId' });
     const friendsPosts = await Promise.all(
-      user.following.map((friendId) => {
-        return Post.find({ userId: friendId }).populate({
+      user.contacts.map((contactId) => {
+        return Post.find({ userId: contactId }).populate({
           path: 'userId',
           populate: {
             path: 'posts',
