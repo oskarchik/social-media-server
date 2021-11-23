@@ -41,8 +41,9 @@ const userSchema = new Schema(
       default: '',
     },
     posts: [{ type: mongoose.Types.ObjectId, ref: 'Post', default: [] }],
-    followers: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
-    following: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
+    contacts: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
+    sentRequests: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
+    receivedRequests: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
     isAdmin: {
       type: Boolean,
       default: false,
