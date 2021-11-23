@@ -4,9 +4,11 @@ const {
   fieldUpdate,
   userDelete,
   userGet,
-  followUserUpdate,
-  unfollowUserUpdate,
+  sendContactRequestUpdate,
+  removeContactUpdate,
   userGetAll,
+  acceptContactRequest,
+  declineContactRequest,
 } = require('../controllers/user.controller');
 
 router.put('/:id/password', passwordUpdate);
@@ -17,9 +19,13 @@ router.delete('/:id', userDelete);
 
 router.get('/:id', userGet);
 
-router.put('/:id/follow', followUserUpdate);
+router.put('/:id/request-contact', sendContactRequestUpdate);
 
-router.put('/:id/unfollow', unfollowUserUpdate);
+router.put('/:id/remove-contact', removeContactUpdate);
+
+router.put('/:id/accept-contact', acceptContactRequest);
+
+router.put('/:id/decline-contact', declineContactRequest);
 
 router.get('/', userGetAll);
 module.exports = router;
