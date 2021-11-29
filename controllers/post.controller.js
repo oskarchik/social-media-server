@@ -73,12 +73,12 @@ const postUpdate = async (req, res) => {
 const postDelete = async (req, res) => {
   const postId = req.params.id;
   const { userId } = req.body;
-
+  console.log(postId, userId);
   try {
     const existingPost = await Post.findById(postId);
     if (!existingPost) {
       return res.status(404).json({
-        error: `post doesn't exisits`,
+        error: `post doesn't exists`,
       });
     }
     if (!existingPost.userId.equals(userId)) {
@@ -86,9 +86,9 @@ const postDelete = async (req, res) => {
     }
     const deletedPost = await Post.findByIdAndDelete(postId);
     console.log(deletedPost);
-    return res.status(200).json({ msg: 'Post deleted' });
+    return res.status(200).json({ msg: 'Post deleted', postId });
   } catch (error) {
-    return res.status(500).json({ error: 'internal server error' });
+    return res.status(500).json({ error: 'Unexpected error' });
   }
 };
 
@@ -113,6 +113,7 @@ const postGetById = async (req, res) => {
 
 const postsUserGetAll = async (req, res) => {
   const { id } = req.params;
+  console.log(id);
   if (!id) {
     return res.status(404).json({ error: 'user not found' });
   }
@@ -136,15 +137,23 @@ const timeLineByIdUserGet = async (req, res) => {
   try {
     const user = await User.findById(userId);
 
-    const userPosts = await Post.find({ userId: user._id }).populate({ path: 'userId' });
+    const userPosts = await Post.find({ userId: user._id })
+      .populate({ path: 'userId' })
+      .populate({ path: 'comments', populate: 'userId comments' });
     const friendsPosts = await Promise.all(
       user.contacts.map((contactId) => {
-        return Post.find({ userId: contactId }).populate({
-          path: 'userId',
-          populate: {
-            path: 'posts',
-          },
-        });
+        return (
+          Post.find({ userId: contactId })
+            .populate({
+              path: 'userId',
+              populate: {
+                path: 'posts',
+              },
+            })
+            .populate({ path: 'comments', populate: 'userId comments likes' })
+            // .populate({ path: 'subComments', populate: 'userId' })
+            .populate({ path: 'likes', populate: 'userId' })
+        );
       })
     );
 
@@ -159,12 +168,14 @@ const timeLineByIdUserGet = async (req, res) => {
 const postLikeByIdPut = async (req, res) => {
   const postId = req.params.id;
   const { userId } = req.body;
+  console.log();
   if (!postId) {
     return res.status(400).json({ error: 'Post id needed' });
   }
-  let existingPost;
+
   try {
-    existingPost = await Post.findById(postId);
+    const existingPost = await Post.findById(postId);
+    console.log('exisiting post ', existingPost);
     if (!existingPost) {
       return res.status(404).json({ error: 'Post not found' });
     }
@@ -177,11 +188,11 @@ const postLikeByIdPut = async (req, res) => {
           },
         },
         { new: true }
-      );
-      return res.status(200).json({ msg: 'Post has been liked' });
+      ).populate('comments');
+      return res.status(200).json(likedPost);
     }
     if (existingPost.likes.includes(userId)) {
-      const likedPost = await Post.findByIdAndUpdate(
+      const unLikedPost = await Post.findByIdAndUpdate(
         existingPost._id,
         {
           $pull: {
@@ -189,10 +200,12 @@ const postLikeByIdPut = async (req, res) => {
           },
         },
         { new: true }
-      );
-      return res.status(200).json({ msg: 'Post has been unliked' });
+      ).populate('comments');
+      return res.status(200).json(unLikedPost);
     }
-  } catch (error) {}
+  } catch (error) {
+    return res.status(500).json({ error: 'Unexpected error' });
+  }
 };
 
 module.exports = {
