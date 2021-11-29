@@ -12,6 +12,7 @@ const connect = require('./db');
 const usersRoute = require('./routes/users');
 const authRoute = require('./routes/auth');
 const postsRoute = require('./routes/posts');
+const commentsRoute = require('./routes/comments');
 
 connect();
 require('./passport/passport');
@@ -56,6 +57,7 @@ app.use(passport.session());
 app.use('/api/users', usersRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/posts', postsRoute);
+app.use('/api/comments', commentsRoute);
 
 app.use('*', (req, res, next) => {
   const error = new Error('Route not found');

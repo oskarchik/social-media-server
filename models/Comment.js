@@ -1,23 +1,24 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const postSchema = new Schema(
+const commentSchema = new Schema(
   {
-    userId: {
+    userId: { type: mongoose.Types.ObjectId, ref: 'User' },
+    postId: {
       type: mongoose.Types.ObjectId,
-      ref: 'User',
+      ref: 'Post',
     },
-    description: {
+    text: {
       type: String,
       max: 500,
     },
-    image: {
-      type: String,
-    },
     likes: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
     comments: [{ type: mongoose.Types.ObjectId, ref: 'Comment', default: [] }],
+    isSubComment: { type: Boolean, default: false },
+    hasSubComments: { type: Boolean, default: false },
     totalComments: { type: Number, default: 0 },
   },
+
   { timestamps: true }
 );
 
@@ -26,6 +27,6 @@ function autoPopulateComments(next) {
   next();
 }
 
-postSchema.pre('findById', autoPopulateComments).pre('find', autoPopulateComments);
+commentSchema.pre('findById', autoPopulateComments).pre('find', autoPopulateComments);
 
-module.exports = mongoose.model('Post', postSchema);
+module.exports = mongoose.model('Comment', commentSchema);
