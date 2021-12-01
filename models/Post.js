@@ -7,7 +7,7 @@ const postSchema = new Schema(
       type: mongoose.Types.ObjectId,
       ref: 'User',
     },
-    description: {
+    text: {
       type: String,
       max: 500,
     },

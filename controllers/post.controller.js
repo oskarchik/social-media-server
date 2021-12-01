@@ -2,21 +2,21 @@ const Post = require('../models/Post');
 const User = require('../models/User');
 
 const createPost = async (req, res) => {
-  const { description, image, userId } = req.body;
-  if (!description && !image) {
-    return res.status(400).json({ error: 'description or image is needed' });
+  const { text, image, userId } = req.body;
+  if (!text && !image) {
+    return res.status(400).json({ error: 'text or image is needed' });
   }
   try {
-    const newPost = await new Post({
-      userId,
-      description,
-      image,
-    });
-    const savedPost = await newPost.save();
-    const user = await User.findById({ _id: userId });
+    const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({ error: 'user not found to associate post' });
     }
+    const newPost = await new Post({
+      userId: user._id,
+      text,
+      image,
+    }).populate('userId');
+    const savedPost = await newPost.save();
     const updateUser = await User.findByIdAndUpdate(
       user._id,
       { $push: { posts: savedPost._id } },
@@ -31,7 +31,7 @@ const createPost = async (req, res) => {
 
 const postUpdate = async (req, res) => {
   const postId = req.params.id;
-  const { userId, image, description } = req.body;
+  const { userId, image, text } = req.body;
   try {
     const existingPost = await Post.findById(postId);
     if (!existingPost) {
@@ -51,20 +51,20 @@ const postUpdate = async (req, res) => {
         },
         { new: true }
       );
-      if (description !== undefined) {
+      if (text !== undefined) {
         const updatePost = await Post.findByIdAndUpdate(
           existingPost._id,
           {
             $set: {
-              description,
+              text,
             },
           },
           { new: true }
         );
       }
     }
-    const updatedPost = await Post.findById(postId);
-    return res.status(200).json({ post: updatedPost });
+    const updatedPost = await Post.findById(postId).populate('comments').populate('userId').populate('likes');
+    return res.status(200).json({ updatedPost });
   } catch (error) {
     return res.status(500).json({ error: 'internal server error' });
   }
@@ -188,7 +188,10 @@ const postLikeByIdPut = async (req, res) => {
           },
         },
         { new: true }
-      ).populate('comments');
+      )
+        .populate('comments')
+        .populate('userId')
+        .populate('likes');
       return res.status(200).json(likedPost);
     }
     if (existingPost.likes.includes(userId)) {
@@ -200,7 +203,10 @@ const postLikeByIdPut = async (req, res) => {
           },
         },
         { new: true }
-      ).populate('comments');
+      )
+        .populate('comments')
+        .populate('userId')
+        .populate('likes');
       return res.status(200).json(unLikedPost);
     }
   } catch (error) {
