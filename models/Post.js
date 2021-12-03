@@ -17,6 +17,7 @@ const postSchema = new Schema(
     likes: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
     comments: [{ type: mongoose.Types.ObjectId, ref: 'Comment', default: [] }],
     totalComments: { type: Number, default: 0 },
+    postRef: { type: mongoose.Types.ObjectId, ref: 'Post' },
   },
   { timestamps: true }
 );

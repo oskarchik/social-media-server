@@ -32,6 +32,13 @@ const createPost = async (req, res) => {
 const postUpdate = async (req, res) => {
   const postId = req.params.id;
   const { userId, image, text } = req.body;
+  const fieldsToUpdate = {};
+  if (image) {
+    fieldsToUpdate.image = image;
+  }
+  if (text) {
+    fieldsToUpdate.text = text;
+  }
   try {
     const existingPost = await Post.findById(postId);
     if (!existingPost) {
@@ -41,30 +48,18 @@ const postUpdate = async (req, res) => {
     if (!existingPost.userId.equals(userId)) {
       return res.status(403).json({ error: `You cannot update someone else's post` });
     }
-    if (image !== undefined) {
-      const updatePost = await Post.findByIdAndUpdate(
-        existingPost._id,
-        {
-          $set: {
-            image,
-          },
-        },
-        { new: true }
-      );
-      if (text !== undefined) {
-        const updatePost = await Post.findByIdAndUpdate(
-          existingPost._id,
-          {
-            $set: {
-              text,
-            },
-          },
-          { new: true }
-        );
-      }
-    }
+    const updatePost = await Post.findByIdAndUpdate(
+      existingPost._id,
+      {
+        $set: { ...fieldsToUpdate },
+      },
+      { new: true }
+    );
+
     const updatedPost = await Post.findById(postId).populate('comments').populate('userId').populate('likes');
-    return res.status(200).json({ updatedPost });
+    console.log('updatedPost', updatedPost);
+
+    return res.status(200).json(updatedPost);
   } catch (error) {
     return res.status(500).json({ error: 'internal server error' });
   }
@@ -139,7 +134,8 @@ const timeLineByIdUserGet = async (req, res) => {
 
     const userPosts = await Post.find({ userId: user._id })
       .populate({ path: 'userId' })
-      .populate({ path: 'comments', populate: 'userId comments' });
+      .populate({ path: 'comments', populate: 'userId comments' })
+      .populate({ path: 'postRef' });
     const friendsPosts = await Promise.all(
       user.contacts.map((contactId) => {
         return (
@@ -175,7 +171,7 @@ const postLikeByIdPut = async (req, res) => {
 
   try {
     const existingPost = await Post.findById(postId);
-    console.log('exisiting post ', existingPost);
+    console.log('existing post ', existingPost);
     if (!existingPost) {
       return res.status(404).json({ error: 'Post not found' });
     }
@@ -214,6 +210,69 @@ const postLikeByIdPut = async (req, res) => {
   }
 };
 
+const sharePost = async (req, res) => {
+  const { postRef, userId, text } = req.body;
+
+  if (!postRef && !userId) {
+    return res.status(400).json({ error: 'User and post ids needed' });
+  }
+  try {
+    const existingPost = await Post.findById(postRef);
+
+    if (!existingPost) {
+      return res.status(400).json({ error: 'Post not found' });
+    }
+
+    const existingUser = await User.findById(userId);
+
+    if (!existingUser) {
+      return res.status(400).json({ error: 'User not found' });
+    }
+
+    const newPost = await new Post({
+      userId: existingUser._id,
+      text,
+      postRef: existingPost._id,
+    });
+
+    const savedPost = await newPost.save();
+
+    const updatedUser = await User.findByIdAndUpdate(
+      existingUser._id,
+      {
+        $push: {
+          shares: savedPost._id,
+        },
+      },
+      { new: true }
+    );
+    console.log(updatedUser);
+    // .populate('userId')
+    // .populate('likes')
+    // .populate('comments')
+    // .populate('shares');
+    // const updatedUser = await User.findByIdAndUpdate(
+    //   existingUser._id,
+    //   {
+    //     $push: {
+    //       posts: {
+    //         $each: [existingPost],
+    //         $position: 0,
+    //       },
+    //     },
+    //   },
+    //   { new: true }
+    // )
+    //   .populate('posts')
+    //   .populate('contacts')
+    //   .populate('sentRequests')
+    //   .populate('receivedRequests');
+
+    return res.status(200).json(updatedUser);
+  } catch (error) {
+    return res.status(500).json({ error: 'Unexpected error' });
+  }
+};
 module.exports = {
   createPost,
   postUpdate,
@@ -222,4 +281,5 @@ module.exports = {
   postsUserGetAll,
   timeLineByIdUserGet,
   postLikeByIdPut,
+  sharePost,
 };

@@ -7,7 +7,10 @@ const {
   postsUserGetAll,
   timeLineByIdUserGet,
   postLikeByIdPut,
+  sharePost,
 } = require('../controllers/post.controller');
+
+router.put('/share', sharePost);
 
 router.post('/', createPost);
 

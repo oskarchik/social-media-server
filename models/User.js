@@ -41,6 +41,7 @@ const userSchema = new Schema(
       default: '',
     },
     posts: [{ type: mongoose.Types.ObjectId, ref: 'Post', default: [] }],
+    shares: [{ type: mongoose.Types.ObjectId, ref: 'Post', default: [] }],
     contacts: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
     sentRequests: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
     receivedRequests: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
