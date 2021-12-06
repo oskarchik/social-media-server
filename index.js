@@ -13,6 +13,8 @@ const usersRoute = require('./routes/users');
 const authRoute = require('./routes/auth');
 const postsRoute = require('./routes/posts');
 const commentsRoute = require('./routes/comments');
+const conversationsRoute = require('./routes/conversations');
+const messagesRoute = require('./routes/messages');
 
 connect();
 require('./passport/passport');
@@ -58,6 +60,8 @@ app.use('/api/users', usersRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/posts', postsRoute);
 app.use('/api/comments', commentsRoute);
+app.use('/api/conversations', conversationsRoute);
+app.use('/api/messages', messagesRoute);
 
 app.use('*', (req, res, next) => {
   const error = new Error('Route not found');
