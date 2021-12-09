@@ -42,6 +42,26 @@ const getConversationByUserId = async (req, res) => {
     return res.status(500).json({ error: 'Unexpected error' });
   }
 };
-//get all conversation of user
+//get conversation by members
 
-module.exports = { createConversation, getConversationByUserId };
+const getConversationByMembersId = async (req, res) => {
+  const { firstUserId, secondUserId } = req.params;
+
+  if (!firstUserId || !secondUserId) {
+    return res.status(400).json({ error: 'Two users needed' });
+  }
+  try {
+    const existingConversation = await Conversation.findOne({
+      members: { $all: [firstUserId, secondUserId] },
+    });
+    if (!existingConversation) {
+      return res.status(404).json({ error: 'not found' });
+    }
+    console.log(existingConversation);
+    return res.status(200).json(existingConversation);
+  } catch (error) {
+    return res.status(500).json({ error: 'Unexpected error' });
+  }
+};
+
+module.exports = { createConversation, getConversationByUserId, getConversationByMembersId };

@@ -1,5 +1,7 @@
 require('dotenv').config();
 const express = require('express');
+const http = require('http');
+const socketio = require('socket.io');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -19,6 +21,13 @@ const messagesRoute = require('./routes/messages');
 connect();
 require('./passport/passport');
 const app = express();
+const server = http.createServer(app);
+const io = socketio(server, {
+  cors: {
+    origin: 'http://localhost:3000',
+    credentials: true,
+  },
+});
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -56,6 +65,59 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
+let users = [];
+
+const addUser = (userId, socketId) => {
+  if (!users.some((user) => user.userId === userId)) {
+    users.push({ userId, socketId });
+  }
+};
+
+const removeUser = (socketId) => {
+  users = users.filter((user) => user.socketId !== socketId);
+};
+
+const getUser = (userId) => {
+  return users.find((user) => user.userId === userId);
+};
+io.on('connection', (socket) => {
+  // on connection
+  console.log('new ws connection');
+
+  socket.on('addUser', (userId) => {
+    addUser(userId, socket.id);
+    io.emit('getUsers', users);
+  });
+
+  // send and get messages
+  socket.on('sendMessage', ({ senderId, receiverId, text }) => {
+    const user = getUser(receiverId);
+
+    io.to(user?.socketId).emit('getMessage', {
+      senderId,
+      text,
+    });
+  });
+
+  //notifications
+
+  socket.on('sendNotification', ({ senderId, receiverId, type }) => {
+    console.log(senderId);
+    const receiver = receiverId;
+    io.to(receiver.socketId).emit('getNotification', {
+      senderId,
+      type,
+    });
+  });
+
+  //on disconnection
+  socket.on('disconnect', () => {
+    console.log('a user disconnected');
+    removeUser(socket.id);
+    io.emit('getUsers', users);
+  });
+});
+
 app.use('/api/users', usersRoute);
 app.use('/api/auth', authRoute);
 app.use('/api/posts', postsRoute);
@@ -73,6 +135,6 @@ app.use((err, req, res, next) => {
   return res.status(err.status || 500).json({ error: err.message || 'Unexpected error' });
 });
 
-app.listen(process.env.PORT, () => {
+server.listen(process.env.PORT, () => {
   console.log(`running on http://localhost:${process.env.PORT}`);
 });
