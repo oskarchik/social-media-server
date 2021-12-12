@@ -9,6 +9,7 @@ const {
   userGetAll,
   acceptContactRequest,
   declineContactRequest,
+  removeMention,
 } = require('../controllers/user.controller');
 
 router.put('/:id/password', passwordUpdate);
@@ -28,4 +29,6 @@ router.put('/:id/accept-contact', acceptContactRequest);
 router.put('/:id/decline-contact', declineContactRequest);
 
 router.get('/', userGetAll);
+
+router.put('/:id/mentions', removeMention);
 module.exports = router;

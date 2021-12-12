@@ -45,6 +45,7 @@ const userSchema = new Schema(
     contacts: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
     sentRequests: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
     receivedRequests: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
+    mentions: [{ type: mongoose.Types.ObjectId, ref: 'User', default: [] }],
     isAdmin: {
       type: Boolean,
       default: false,

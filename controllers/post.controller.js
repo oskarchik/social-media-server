@@ -2,7 +2,10 @@ const Post = require('../models/Post');
 const User = require('../models/User');
 
 const createPost = async (req, res) => {
-  const { text, image, userId } = req.body;
+  const { text, image, userId, mentions } = req.body;
+  console.log(mentions);
+  const ids = mentions.map((mention) => mention.id);
+  console.log(ids);
   if (!text && !image) {
     return res.status(400).json({ error: 'text or image is needed' });
   }
@@ -15,14 +18,24 @@ const createPost = async (req, res) => {
       userId: user._id,
       text,
       image,
+      mentions,
     }).populate('userId');
     const savedPost = await newPost.save();
+    console.log('aqui');
     const updateUser = await User.findByIdAndUpdate(
       user._id,
       { $push: { posts: savedPost._id } },
 
       { new: true }
     );
+    const mentionedUsers = await User.updateMany(
+      { _id: { $in: [ids] } },
+      {
+        $push: { mentions: user },
+      },
+      { new: true }
+    );
+    console.log(mentionedUsers);
     return res.status(200).json({ post: newPost, user: updateUser });
   } catch (error) {
     return res.status(500).json({ error });

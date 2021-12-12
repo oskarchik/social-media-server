@@ -294,6 +294,40 @@ const declineContactRequest = async (req, res) => {
     return res.status(403).json({ error: 'You can not accept yourself' });
   }
 };
+const removeMention = async (req, res) => {
+  const { senderId } = req.body;
+  const userId = req.params.id;
+  console.log('body', req.body);
+
+  console.log('sender; ', senderId, 'user; ', userId);
+  if (!userId && !senderId) {
+    return res.status(400).json({ error: 'User and sender ids needed' });
+  }
+  try {
+    const existingUser = await User.findById(userId);
+
+    if (!existingUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      existingUser._id,
+      {
+        $pull: {
+          mentions: senderId,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+    console.log('existingUser: ', existingUser);
+    console.log('updatedUSer: ', updatedUser);
+    return res.status(200).json(updatedUser);
+  } catch (error) {
+    return res.status(500).json({ error: 'Unexpected error' });
+  }
+};
 module.exports = {
   passwordUpdate,
   fieldUpdate,
@@ -304,4 +338,5 @@ module.exports = {
   removeContactUpdate,
   acceptContactRequest,
   declineContactRequest,
+  removeMention,
 };
