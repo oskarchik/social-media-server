@@ -11,10 +11,11 @@ const {
   declineContactRequest,
   removeMention,
 } = require('../controllers/user.controller');
+const { upload, uploadToCloudinary } = require('../middlewares/file.middleware');
 
 router.put('/:id/password', passwordUpdate);
 
-router.put('/:id', fieldUpdate);
+router.put('/:id', [upload.fields([{ name: 'avatar' }, { name: 'coverPic' }]), uploadToCloudinary], fieldUpdate);
 
 router.delete('/:id', userDelete);
 

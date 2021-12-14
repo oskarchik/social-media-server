@@ -34,11 +34,12 @@ const userSchema = new Schema(
     },
     avatar: {
       type: String,
-      default: '',
+      default: 'https://res.cloudinary.com/oscloud/image/upload/v1639365208/social-media-app/profile_ew08od.png',
     },
     coverPic: {
       type: String,
-      default: '',
+      default:
+        'https://res.cloudinary.com/oscloud/image/upload/v1639368250/social-media-app/default-image_0_we6rdv.png',
     },
     posts: [{ type: mongoose.Types.ObjectId, ref: 'Post', default: [] }],
     shares: [{ type: mongoose.Types.ObjectId, ref: 'Post', default: [] }],

@@ -10,11 +10,13 @@ const {
   sharePost,
 } = require('../controllers/post.controller');
 
+const { upload, uploadToCloudinary } = require('../middlewares/file.middleware');
+
 router.put('/share', sharePost);
 
-router.post('/', createPost);
+router.post('/', [upload.single('image'), uploadToCloudinary], createPost);
 
-router.put('/:id', postUpdate);
+router.put('/:id', [upload.single('image'), uploadToCloudinary], postUpdate);
 
 router.delete('/:id', postDelete);
 

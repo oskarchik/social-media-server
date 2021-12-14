@@ -2,10 +2,10 @@ const Post = require('../models/Post');
 const User = require('../models/User');
 
 const createPost = async (req, res) => {
-  const { text, image, userId, mentions } = req.body;
-  console.log(mentions);
-  const ids = mentions.map((mention) => mention.id);
-  console.log(ids);
+  const { text, userId, mentions } = req.body;
+  const image = req.file_url;
+  const ids = mentions?.map((mention) => mention.id);
+
   if (!text && !image) {
     return res.status(400).json({ error: 'text or image is needed' });
   }
@@ -21,7 +21,6 @@ const createPost = async (req, res) => {
       mentions,
     }).populate('userId');
     const savedPost = await newPost.save();
-    console.log('aqui');
     const updateUser = await User.findByIdAndUpdate(
       user._id,
       { $push: { posts: savedPost._id } },
@@ -44,7 +43,8 @@ const createPost = async (req, res) => {
 
 const postUpdate = async (req, res) => {
   const postId = req.params.id;
-  const { userId, image, text } = req.body;
+  const { userId, text } = req.body;
+  const image = req.file_url;
   const fieldsToUpdate = {};
   if (image) {
     fieldsToUpdate.image = image;
@@ -259,27 +259,6 @@ const sharePost = async (req, res) => {
       },
       { new: true }
     );
-    console.log(updatedUser);
-    // .populate('userId')
-    // .populate('likes')
-    // .populate('comments')
-    // .populate('shares');
-    // const updatedUser = await User.findByIdAndUpdate(
-    //   existingUser._id,
-    //   {
-    //     $push: {
-    //       posts: {
-    //         $each: [existingPost],
-    //         $position: 0,
-    //       },
-    //     },
-    //   },
-    //   { new: true }
-    // )
-    //   .populate('posts')
-    //   .populate('contacts')
-    //   .populate('sentRequests')
-    //   .populate('receivedRequests');
 
     return res.status(200).json(updatedUser);
   } catch (error) {

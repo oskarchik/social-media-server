@@ -65,7 +65,11 @@ const fieldUpdate = async (req, res) => {
   }
 
   try {
-    const updateUser = req.body;
+    let updateUser = JSON.parse(JSON.stringify(req.body));
+    req.files.map((file) => {
+      file.avatar ? (updateUser.avatar = file.avatar) : null;
+      file.coverPic ? (updateUser.coverPic = file.coverPic) : null;
+    });
     const userUpdated = await User.findByIdAndUpdate(
       existingUser._id,
       {
@@ -321,8 +325,6 @@ const removeMention = async (req, res) => {
         new: true,
       }
     );
-    console.log('existingUser: ', existingUser);
-    console.log('updatedUSer: ', updatedUser);
     return res.status(200).json(updatedUser);
   } catch (error) {
     return res.status(500).json({ error: 'Unexpected error' });
