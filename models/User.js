@@ -38,8 +38,7 @@ const userSchema = new Schema(
     },
     coverPic: {
       type: String,
-      default:
-        'https://res.cloudinary.com/oscloud/image/upload/v1639368250/social-media-app/default-image_0_we6rdv.png',
+      default: 'https://res.cloudinary.com/oscloud/image/upload/v1641295473/social-media-app/cover-default_y5g6xs.png',
     },
     posts: [{ type: mongoose.Types.ObjectId, ref: 'Post', default: [] }],
     shares: [{ type: mongoose.Types.ObjectId, ref: 'Post', default: [] }],
