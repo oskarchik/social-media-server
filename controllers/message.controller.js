@@ -11,9 +11,10 @@ const newMessage = async (req, res) => {
     return res.status(400).json({ error: 'Impossible to associate message to a conversation' });
   }
   try {
+    const senderUser = await User.findById(sender);
     const newMessage = await new Message({
       conversationId,
-      sender,
+      sender: senderUser,
       text,
     }).populate('sender');
 
