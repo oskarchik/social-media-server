@@ -14,7 +14,7 @@ const { upload, uploadToCloudinary } = require('../middlewares/file.middleware')
 
 router.put('/share', sharePost);
 
-router.post('/', [upload.single('image'), uploadToCloudinary], createPost);
+router.post('/', [upload.single('file'), uploadToCloudinary], createPost);
 
 router.put('/:id', [upload.single('image'), uploadToCloudinary], postUpdate);
 
