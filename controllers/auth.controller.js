@@ -31,6 +31,7 @@ const signUpPost = async (req, res, next) => {
 const signInPost = async (req, res, next) => {
   passport.authenticate('login', (error, user) => {
     if (error) {
+      console.log(error.message);
       return res.status(403).json({ error: error.message });
     }
     req.logIn(user, async (error) => {

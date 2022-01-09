@@ -330,6 +330,38 @@ const removeMention = async (req, res) => {
     return res.status(500).json({ error: 'Unexpected error' });
   }
 };
+
+const uploadAvatarPut = async (req, res) => {
+  console.log('params', req.params.id);
+  const userId = req.params.id;
+  const avatar = req.file_url;
+
+  if (!userId || !avatar) {
+    return next();
+  }
+
+  try {
+    const existingUser = await User.findById(userId);
+
+    if (!existingUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    if (!avatar) {
+      return res.status(422).json({ error: 'No image to upload attached' });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      existingUser._id,
+      {
+        avatar,
+      },
+      { new: true }
+    );
+    return res.status(200).json(updatedUser);
+  } catch (error) {
+    return res.status(500).json({ error: 'Unexpected error' });
+  }
+};
 module.exports = {
   passwordUpdate,
   fieldUpdate,
@@ -341,4 +373,5 @@ module.exports = {
   acceptContactRequest,
   declineContactRequest,
   removeMention,
+  uploadAvatarPut,
 };

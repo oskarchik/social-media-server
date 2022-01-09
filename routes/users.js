@@ -2,6 +2,7 @@ const router = require('express').Router();
 const {
   passwordUpdate,
   fieldUpdate,
+  uploadAvatarPut,
   userDelete,
   userGet,
   sendContactRequestUpdate,
@@ -15,8 +16,8 @@ const { upload, uploadToCloudinary } = require('../middlewares/file.middleware')
 
 router.put('/:id/password', passwordUpdate);
 
-router.put('/:id', [upload.fields([{ name: 'avatar' }, { name: 'coverPic' }]), uploadToCloudinary], fieldUpdate);
-
+// router.put('/:id', [upload.fields([{ name: 'avatar' }, { name: 'coverPic' }]), uploadToCloudinary], fieldUpdate);
+router.put('/:id/upload-avatar', [upload.single('image'), uploadToCloudinary], uploadAvatarPut);
 router.delete('/:id', userDelete);
 
 router.get('/:id', userGet);
