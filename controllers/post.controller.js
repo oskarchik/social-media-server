@@ -2,7 +2,8 @@ const Post = require('../models/Post');
 const User = require('../models/User');
 
 const createPost = async (req, res) => {
-  const { text, userId, mentions } = req.body;
+  const { text, userId } = req.body;
+  const mentions = JSON.parse(req.body.mentions);
   const image = req.file_url;
   const ids = mentions?.map((mention) => mention.id);
 
@@ -34,7 +35,6 @@ const createPost = async (req, res) => {
       },
       { new: true }
     );
-    console.log(mentionedUsers);
     return res.status(200).json({ post: newPost, user: updateUser });
   } catch (error) {
     return res.status(500).json({ error });
@@ -70,7 +70,6 @@ const postUpdate = async (req, res) => {
     );
 
     const updatedPost = await Post.findById(postId).populate('comments').populate('userId').populate('likes');
-    console.log('updatedPost', updatedPost);
 
     return res.status(200).json(updatedPost);
   } catch (error) {
@@ -81,7 +80,7 @@ const postUpdate = async (req, res) => {
 const postDelete = async (req, res) => {
   const postId = req.params.id;
   const { userId } = req.body;
-  console.log(postId, userId);
+
   try {
     const existingPost = await Post.findById(postId);
     if (!existingPost) {
@@ -93,7 +92,7 @@ const postDelete = async (req, res) => {
       return res.status(403).json({ error: `You can not delete someone else's post` });
     }
     const deletedPost = await Post.findByIdAndDelete(postId);
-    console.log(deletedPost);
+
     return res.status(200).json({ msg: 'Post deleted', postId });
   } catch (error) {
     return res.status(500).json({ error: 'Unexpected error' });
@@ -121,7 +120,7 @@ const postGetById = async (req, res) => {
 
 const postsUserGetAll = async (req, res) => {
   const { id } = req.params;
-  console.log(id);
+
   if (!id) {
     return res.status(404).json({ error: 'user not found' });
   }
@@ -151,18 +150,15 @@ const timeLineByIdUserGet = async (req, res) => {
       .populate({ path: 'postRef' });
     const friendsPosts = await Promise.all(
       user.contacts.map((contactId) => {
-        return (
-          Post.find({ userId: contactId })
-            .populate({
-              path: 'userId',
-              populate: {
-                path: 'posts',
-              },
-            })
-            .populate({ path: 'comments', populate: 'userId comments likes' })
-            // .populate({ path: 'subComments', populate: 'userId' })
-            .populate({ path: 'likes', populate: 'userId' })
-        );
+        return Post.find({ userId: contactId })
+          .populate({
+            path: 'userId',
+            populate: {
+              path: 'posts',
+            },
+          })
+          .populate({ path: 'comments', populate: 'userId comments likes' })
+          .populate({ path: 'likes', populate: 'userId' });
       })
     );
 
@@ -177,14 +173,14 @@ const timeLineByIdUserGet = async (req, res) => {
 const postLikeByIdPut = async (req, res) => {
   const postId = req.params.id;
   const { userId } = req.body;
-  console.log();
+
   if (!postId) {
     return res.status(400).json({ error: 'Post id needed' });
   }
 
   try {
     const existingPost = await Post.findById(postId);
-    console.log('existing post ', existingPost);
+
     if (!existingPost) {
       return res.status(404).json({ error: 'Post not found' });
     }
