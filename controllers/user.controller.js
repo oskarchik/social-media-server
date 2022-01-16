@@ -21,7 +21,7 @@ const passwordUpdate = async (req, res) => {
   if (!password) {
     return res.status(400).json({ error: 'password is required' });
   }
-  console.log(password, existingUser.password);
+
   const isValidPassword = await bcrypt.compare(password, existingUser.password);
   if (!isValidPassword) {
     return res.status(400).json({ error: 'invalid password' });
@@ -91,7 +91,6 @@ const userDelete = async (req, res) => {
     if (!existingUser) {
       return res.status(404).json({ error: 'user not found' });
     }
-    console.log('user', existingUser);
   } catch (error) {
     return res.status(500).json({ error });
   }
@@ -152,7 +151,7 @@ const sendContactRequestUpdate = async (req, res) => {
           { $push: { receivedRequests: userId } },
           { new: true }
         );
-        console.log(updatedUser, updatedRequestedUser);
+
         return res.status(200).json({ user: updatedUser });
       } else {
         return res.status(403).json({ error: 'User is already a contact' });
@@ -167,7 +166,7 @@ const sendContactRequestUpdate = async (req, res) => {
 
 const removeContactUpdate = async (req, res) => {
   const userId = req.params.id;
-  console.log(req.body);
+
   if (req.body.contactId !== userId) {
     try {
       const user = await User.findById({ _id: userId });
@@ -187,7 +186,7 @@ const removeContactUpdate = async (req, res) => {
           { $pull: { contacts: userId } },
           { new: true }
         );
-        console.log(updatedUser, updatedContactUser);
+
         return res.status(200).json({ user: updatedUser });
       } else {
         return res.status(403).json({ error: 'User is not a contact' });
@@ -202,8 +201,7 @@ const removeContactUpdate = async (req, res) => {
 
 const acceptContactRequest = async (req, res) => {
   const userId = req.params.id;
-  console.log('params', userId);
-  console.log(req.body.reqUserId);
+
   if (req.body.reqUserId !== userId) {
     try {
       const user = await User.findById({ _id: userId });
@@ -253,8 +251,7 @@ const acceptContactRequest = async (req, res) => {
 };
 const declineContactRequest = async (req, res) => {
   const userId = req.params.id;
-  console.log('params', userId);
-  console.log(req.body.reqUserId);
+
   if (req.body.reqUserId !== userId) {
     try {
       const user = await User.findById({ _id: userId });
@@ -301,9 +298,7 @@ const declineContactRequest = async (req, res) => {
 const removeMention = async (req, res) => {
   const { senderId } = req.body;
   const userId = req.params.id;
-  console.log('body', req.body);
 
-  console.log('sender; ', senderId, 'user; ', userId);
   if (!userId && !senderId) {
     return res.status(400).json({ error: 'User and sender ids needed' });
   }
@@ -331,8 +326,7 @@ const removeMention = async (req, res) => {
   }
 };
 
-const uploadAvatarPut = async (req, res) => {
-  console.log('params', req.params.id);
+const uploadAvatarPut = async (req, res, next) => {
   const userId = req.params.id;
   const avatar = req.file_url;
 
@@ -357,7 +351,38 @@ const uploadAvatarPut = async (req, res) => {
       },
       { new: true }
     );
-    return res.status(200).json(updatedUser);
+    return res.status(200).json({ user: updatedUser });
+  } catch (error) {
+    return res.status(500).json({ error: 'Unexpected error' });
+  }
+};
+const uploadCoverPut = async (req, res, next) => {
+  const userId = req.params.id;
+  const coverPic = req.file_url;
+
+  if (!userId || !coverPic) {
+    return next();
+  }
+
+  try {
+    const existingUser = await User.findById(userId);
+
+    if (!existingUser) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+    if (!coverPic) {
+      return res.status(422).json({ error: 'No image to upload attached' });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      existingUser._id,
+      {
+        coverPic,
+      },
+      { new: true }
+    );
+
+    return res.status(200).json({ user: updatedUser });
   } catch (error) {
     return res.status(500).json({ error: 'Unexpected error' });
   }
@@ -374,4 +399,5 @@ module.exports = {
   declineContactRequest,
   removeMention,
   uploadAvatarPut,
+  uploadCoverPut,
 };

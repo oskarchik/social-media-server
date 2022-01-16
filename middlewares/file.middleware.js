@@ -30,10 +30,9 @@ const uploadToCloudinary = async (req, res, next) => {
   if (!req.file) {
     return next();
   }
-  console.log('clod', req.file);
   try {
     const filePath = req.file.path;
-    const image = await cloudinary.uploader.upload(filePath);
+    const image = await cloudinary.uploader.upload(filePath, { folder: 'social-media-app' });
     await fs.unlinkSync(filePath);
 
     req.file_url = image.secure_url;
@@ -41,38 +40,6 @@ const uploadToCloudinary = async (req, res, next) => {
   } catch (error) {
     return next(error);
   }
-
-  // if (!req.files) {
-  //   return next();
-  // }
-  // const avatarFile = req.files?.['avatar']?.[0];
-  // const coverFile = req.files?.['coverPic']?.[0];
-  // let paths = [];
-  // avatarFile ? (paths = [...paths, avatarFile.path]) : null;
-  // coverFile ? (paths = [...paths, coverFile.path]) : null;
-
-  // try {
-  //   let images = [];
-
-  //   for await (let path of paths) {
-  //     console.log('inner path', path);
-
-  //     if (avatarFile && path === avatarFile.path) {
-  //       const image = await cloudinary.uploader.upload(path, { folder: 'social-media-app' });
-  //       images = [...images, { avatar: image.secure_url }];
-  //     }
-
-  //     if (coverFile && path === coverFile.path) {
-  //       const image = await cloudinary.uploader.upload(path, { folder: 'social-media-app' });
-  //       images = [...images, { coverPic: image.secure_url }];
-  //     }
-  //   }
-  //   req.files = images;
-  //   paths.map((path) => fs.unlinkSync(path));
-  //   return next();
-  // } catch (error) {
-  //   return next(error);
-  // }
 };
 
 module.exports = { upload, uploadToCloudinary };
