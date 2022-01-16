@@ -102,7 +102,6 @@ io.on('connection', (socket) => {
   //notifications
 
   socket.on('sendNotification', ({ senderId, receiverId, type }) => {
-    console.log(senderId);
     const receiver = receiverId;
     io.to(receiver.socketId).emit('getNotification', {
       senderId,
