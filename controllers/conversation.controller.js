@@ -57,7 +57,7 @@ const getConversationByMembersId = async (req, res) => {
     if (!existingConversation) {
       return res.status(404).json({ error: 'not found' });
     }
-    console.log(existingConversation);
+
     return res.status(200).json(existingConversation);
   } catch (error) {
     return res.status(500).json({ error: 'Unexpected error' });

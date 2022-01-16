@@ -12,7 +12,6 @@ const getUser = async (user) => {
 
 const signUpPost = async (req, res, next) => {
   const { device, firstName, lastName, password, gender, dateOfBirth } = req.body;
-  console.log(req.body);
   if (!device || !password) {
     return res.status(400).json({ error: 'some fields are required' });
   }
@@ -31,7 +30,6 @@ const signUpPost = async (req, res, next) => {
 const signInPost = async (req, res, next) => {
   passport.authenticate('login', (error, user) => {
     if (error) {
-      console.log(error.message);
       return res.status(403).json({ error: error.message });
     }
     req.logIn(user, async (error) => {

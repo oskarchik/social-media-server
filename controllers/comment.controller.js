@@ -99,7 +99,6 @@ const updateCommentPut = async (req, res) => {
       },
       { new: true }
     );
-    // console.log(updatedComment);
     return res.status(200).json({ comment: updatedComment });
   } catch (error) {
     return res.status(500).json({ error });
@@ -172,8 +171,6 @@ const likeCommentPut = async (req, res) => {
         { new: true }
       );
 
-      console.log(likedComment);
-
       const updatedPost = await Post.findById(existingComment.postId).populate('comments');
 
       return res.status(200).json(updatedPost);
@@ -188,7 +185,6 @@ const likeCommentPut = async (req, res) => {
         },
         { new: true }
       );
-      console.log(likedComment);
 
       const updatedPost = await Post.findById(existingComment.postId).populate('comments');
 
@@ -291,8 +287,7 @@ const commentACommentPut = async (req, res) => {
       .populate('comments');
 
     const updatedPost = await Post.findById(existingPost._id).populate('comments');
-    console.log(updatedPost);
-    // return res.status(200).json({ sourceComment: updatedComment, newComment: savedNewSubComment });
+
     return res.status(200).json(updatedPost);
   } catch (error) {
     return res.status(500).json({ error });

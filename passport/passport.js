@@ -27,10 +27,10 @@ passport.use(
     },
     async (req, device, password, done) => {
       const { firstName, lastName, dateOfBirth, gender } = req.body;
-      console.log('passport', device, password);
+
       try {
         const previousUser = await User.findOne({ device });
-        console.log('previous', previousUser);
+
         if (previousUser) {
           const error = new Error('User already exists');
           return done(error);
