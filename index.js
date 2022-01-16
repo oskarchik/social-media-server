@@ -29,6 +29,8 @@ const io = socketio(server, {
   },
 });
 
+const PORT = process.env || 5500;
+
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header('Access-Control-Allow-Credentials', true);
@@ -134,6 +136,6 @@ app.use((err, req, res, next) => {
   return res.status(err.status || 500).json({ error: err.message || 'Unexpected error' });
 });
 
-server.listen(process.env.PORT, () => {
-  console.log(`running on http://localhost:${process.env.PORT}`);
+server.listen(process.env.PORT || 5500, () => {
+  console.log(`running on http://localhost:${PORT}`);
 });
