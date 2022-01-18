@@ -24,7 +24,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketio(server, {
   cors: {
-    origin: 'http://localhost:3000',
+    origin: 'https://social-face.netlify.app/',
     credentials: true,
   },
 });
@@ -41,7 +41,7 @@ app.use(morgan('common'));
 
 app.use(
   cors({
-    origin: ['http://localhost:3000'],
+    origin: ['https://social-face.netlify.app/'],
     credentials: true,
   })
 );
