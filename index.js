@@ -20,6 +20,8 @@ const messagesRoute = require('./routes/messages');
 
 connect();
 require('./passport/passport');
+
+const PORT = process.env.PORT || 5500;
 const app = express();
 const server = http.createServer(app);
 const io = socketio(server, {
@@ -137,6 +139,6 @@ app.use((err, req, res, next) => {
   return res.status(err.status || 500).json({ error: err.message || 'Unexpected error' });
 });
 
-server.listen(process.env.PORT, () => {
-  console.log(`running on http://localhost:${process.env.PORT}`);
+server.listen(PORT, () => {
+  console.log(`running on http://localhost:${PORT}`);
 });
