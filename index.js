@@ -1,7 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const http = require('http');
-const socketio = require('socket.io');
+// const socketio = require('socket.io');
+const { Server } = require('socket.io');
 const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
@@ -24,11 +25,18 @@ require('./passport/passport');
 const PORT = process.env.PORT || 5500;
 const app = express();
 const server = http.createServer(app);
-const io = socketio(server, {
+// const io = socketio(server, {
+//   cors: {
+//     origin: '//social-face.netlify.app/',
+//     credentials: true,
+//     methods: ['GET', 'POST', 'PUT', 'DELETE'],
+//   },
+// });
+const io = new Server(server, {
   cors: {
     origin: '//social-face.netlify.app/',
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    methods: ['GET', 'POST'],
   },
 });
 
