@@ -53,13 +53,12 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.set('trust proxy', 1);
+// app.set('trust proxy', 1);
 app.use(
   session({
     secret: process.env.SECRET_SESSION,
     resave: false,
     saveUninitialized: false,
-    proxy: true,
     cookie: {
       maxAge: 24 * 60 * 60 * 1000,
       httpOnly: true,
