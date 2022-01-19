@@ -26,7 +26,7 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIO(server, {
   cors: {
-    origin: '//social-face.netlify.app',
+    origin: 'https://social-face.netlify.app',
     credentials: true,
     methods: ['GET', 'POST'],
   },
