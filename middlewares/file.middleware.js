@@ -29,9 +29,11 @@ const upload = multer({
 const uploadToCloudinary = async (req, res, next) => {
   console.log('middleware', req.file);
   if (!req.file) {
+    console.log('no hay req.file');
     return next();
   }
   try {
+    console.log('hay req.file');
     const filePath = req.file.path;
     const image = await cloudinary.uploader.upload(filePath, { folder: 'social-media-app' });
     await fs.unlinkSync(filePath);
