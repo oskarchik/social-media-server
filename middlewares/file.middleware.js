@@ -37,11 +37,12 @@ const uploadToCloudinary = async (req, res, next) => {
     const filePath = req.file.path;
     const image = await cloudinary.uploader.upload(filePath, { folder: 'social-media-app' });
     await fs.unlinkSync(filePath);
-
+    console.log('image', image);
     req.file_url = image.secure_url;
     console.log('req.file_url', req.file_url);
     return next();
   } catch (error) {
+    console.log('error middleware');
     return next(error);
   }
 };
