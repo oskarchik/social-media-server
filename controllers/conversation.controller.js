@@ -45,6 +45,7 @@ const getConversationByUserId = async (req, res) => {
 //get conversation by members
 
 const getConversationByMembersId = async (req, res) => {
+  console.log(req.params);
   const { firstUserId, secondUserId } = req.params;
 
   if (!firstUserId || !secondUserId) {

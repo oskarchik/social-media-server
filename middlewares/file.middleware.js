@@ -27,6 +27,7 @@ const upload = multer({
 });
 
 const uploadToCloudinary = async (req, res, next) => {
+  console.log('middleware', req.file);
   if (!req.file) {
     return next();
   }
