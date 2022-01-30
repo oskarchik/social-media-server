@@ -9,7 +9,7 @@ const storage = multer.diskStorage({
     cb(null, `${Date.now()}-${file.originalname}`);
   },
   destination: (res, file, cb) => {
-    cb(null, path.join(__dirname, '../public/uploads'));
+    cb(null, path.join(__dirname, '../../public/uploads'));
   },
 });
 
@@ -27,19 +27,14 @@ const upload = multer({
 });
 
 const uploadToCloudinary = async (req, res, next) => {
-  console.log('middleware', req.file);
   if (!req.file) {
-    console.log('no hay req.file');
     return next();
   }
   try {
     const filePath = req.file.path;
-    console.log('hay req.file', req.file.path);
     const image = await cloudinary.uploader.upload(filePath, { folder: 'social-media-app' });
-    console.log('image', image);
     await fs.unlinkSync(filePath);
     req.file_url = image.secure_url;
-    console.log('req.file_url', req.file_url);
     return next();
   } catch (error) {
     console.log('error middleware');

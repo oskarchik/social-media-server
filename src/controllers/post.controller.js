@@ -2,8 +2,6 @@ const Post = require('../models/Post');
 const User = require('../models/User');
 
 const createPost = async (req, res) => {
-  console.log('controller req.file', req);
-  console.log('controller body', req.body);
   const { text, userId } = req.body;
   const mentions = JSON.parse(req.body.mentions);
   const image = req.file_url;
