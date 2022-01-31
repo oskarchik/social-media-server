@@ -2,8 +2,6 @@ const passport = require('passport');
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
 
-//TODO --- error messages need to be changed to more generic message
-
 const getUser = async (user) => {
   const userData = await User.findById(user._id).populate('contacts').populate('posts').populate('receivedRequests');
   userData.password = null;

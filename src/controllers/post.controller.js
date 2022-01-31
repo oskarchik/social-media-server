@@ -10,6 +10,11 @@ const createPost = async (req, res) => {
   if (!text && !image) {
     return res.status(400).json({ error: 'text or image is needed' });
   }
+  if (!userId) {
+    {
+      return res.status(400).json({ error: 'userId needed' });
+    }
+  }
   try {
     const user = await User.findById(userId);
     if (!user) {
