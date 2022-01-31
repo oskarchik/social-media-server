@@ -37,7 +37,6 @@ const uploadToCloudinary = async (req, res, next) => {
     req.file_url = image.secure_url;
     return next();
   } catch (error) {
-    console.log('error middleware');
     return next(error);
   }
 };
