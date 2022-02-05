@@ -20,7 +20,7 @@ const socketServer = socketIO(httpServer, {
   },
 });
 
-console.log('fronturl', process.emv.FRONT_URL);
+console.log('fronturl', process?.env?.FRONT_URL);
 
 httpServer.listen(PORT, () => {
   console.log(`running on http://localhost:${PORT}`);
