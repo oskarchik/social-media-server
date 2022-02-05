@@ -15,7 +15,7 @@ const origin = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' 
 
 const socketServer = socketIO(httpServer, {
   cors: {
-    origin,
+    origin: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : process.env.FRONT_URL,
     credentials: true,
     methods: ['GET', 'POST'],
   },

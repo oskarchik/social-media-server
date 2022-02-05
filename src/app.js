@@ -33,7 +33,7 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: [origin],
+    origin: ['http://localhost:3000', 'https://social-face.netlify.app/'],
     credentials: true,
   })
 );
