@@ -54,7 +54,7 @@ app.use(
     store: MongoStore.create({ mongoUrl: DB_URL }),
   })
 );
-
+console.log('cookie', cookieOptions);
 app.use(passport.initialize());
 app.use(passport.session());
 
