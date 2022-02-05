@@ -23,6 +23,7 @@ const cookieOptions = {
   secure: process.env.NODE_ENV === 'development' ? false : true,
   sameSite: process.env.NODE_ENV === 'development' ? 'lax' : 'none',
 };
+const origin = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : process.env.FRONT_URL;
 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
@@ -32,10 +33,12 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: [process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : process.env.FRONT_URL],
+    origin: [origin],
     credentials: true,
   })
 );
+
+console.log('process', process.env.FRONT_URL);
 
 app.use(helmet());
 app.use(morgan('common'));
@@ -54,7 +57,7 @@ app.use(
     store: MongoStore.create({ mongoUrl: DB_URL }),
   })
 );
-console.log('cookie', cookieOptions);
+
 app.use(passport.initialize());
 app.use(passport.session());
 

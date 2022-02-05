@@ -11,10 +11,11 @@ const { app } = require('./app');
 const httpServer = http.createServer(app);
 
 const PORT = process.env.PORT || 5500;
+const origin = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : process.env.FRONT_URL;
 
 const socketServer = socketIO(httpServer, {
   cors: {
-    origin: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : process.env.FRONT_URL,
+    origin,
     credentials: true,
     methods: ['GET', 'POST'],
   },
