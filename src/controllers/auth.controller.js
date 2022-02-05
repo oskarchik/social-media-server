@@ -3,7 +3,10 @@ const bcrypt = require('bcrypt');
 const User = require('../models/User');
 
 const getUser = async (user) => {
-  const userData = await User.findById(user._id).populate('contacts').populate('posts').populate('receivedRequests');
+  const userData = await User.findById(user._id)
+    .populate({ path: 'contacts', populate: 'contacts' })
+    .populate('posts')
+    .populate('receivedRequests');
   userData.password = null;
   return userData;
 };

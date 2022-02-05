@@ -107,9 +107,10 @@ const userDelete = async (req, res) => {
 
 const userGet = async (req, res) => {
   const userId = req.params.id;
-
   try {
-    const existingUser = await User.findById({ _id: userId }).select(['-password']);
+    const existingUser = await User.findById({ _id: userId })
+      .select(['-password'])
+      .populate({ path: 'contacts', populate: contacts });
     if (!existingUser) {
       return res.status(404).json({ error: 'user not found' });
     }
