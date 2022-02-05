@@ -20,7 +20,7 @@ const socketServer = socketIO(httpServer, {
   },
 });
 
-server.listen(PORT, () => {
+httpServer.listen(PORT, () => {
   console.log(`running on http://localhost:${PORT}`);
 });
 
