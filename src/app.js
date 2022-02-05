@@ -39,6 +39,7 @@ app.use(
 );
 
 console.log('process', process.env.FRONT_URL);
+console.log(cookieOptions);
 
 app.use(helmet());
 app.use(morgan('common'));
