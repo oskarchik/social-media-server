@@ -59,6 +59,7 @@ const signOutPost = (req, res, next) => {
 };
 
 const checkSessionGet = async (req, res, next) => {
+  console.log(req);
   if (!req.user) {
     return res.status(401).json({ error: 'No user found' });
   }
