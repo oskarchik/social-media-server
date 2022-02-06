@@ -15,7 +15,8 @@ const origin = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' 
 
 const socketServer = socketIO(httpServer, {
   cors: {
-    origin: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : process.env.FRONT_URL,
+    // origin: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : process.env.FRONT_URL,
+    origin: 'https://social-face.netlify.app',
     credentials: true,
     methods: ['GET', 'POST'],
   },

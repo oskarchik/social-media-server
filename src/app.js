@@ -34,7 +34,7 @@ app.use((req, res, next) => {
 
 app.use(
   cors({
-    origin: 'https://social-face.netlify.app',
+    origin: ['http://localhost:3000', 'https://social-face.netlify.app'],
     credentials: true,
   })
 );
