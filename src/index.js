@@ -4,7 +4,7 @@ const http = require('http');
 const socketIO = require('socket.io');
 const { connect } = require('./db');
 const sockets = require('./socket/sockets');
-
+require('./passport/passport');
 connect();
 
 const { app } = require('./app');

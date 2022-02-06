@@ -28,12 +28,13 @@ const origin = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' 
 app.use((req, res, next) => {
   res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
   res.header('Access-Control-Allow-Credentials', true);
+  // res.header('Access-Control')
   next();
 });
 
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'https://social-face.netlify.app/'],
+    origin: 'https://social-face.netlify.app',
     credentials: true,
   })
 );
