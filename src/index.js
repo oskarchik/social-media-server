@@ -15,15 +15,13 @@ const origin = process.env.NODE_ENV === 'development' ? 'http://localhost:3000' 
 
 const socketServer = socketIO(httpServer, {
   cors: {
-    // origin: process.env.NODE_ENV === 'development' ? 'http://localhost:3000' : process.env.FRONT_URL,
-    origin: 'https://social-face.netlify.app',
+    origin: ['http://localhost:3000', 'https://social-face.netlify.app'],
     credentials: true,
     methods: ['GET', 'POST'],
   },
 });
 
 httpServer.listen(PORT, () => {
-  console.log('fronturl', process?.env?.FRONT_URL);
   console.log(`running on http://localhost:${PORT}`);
 });
 
