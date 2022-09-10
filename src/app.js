@@ -16,6 +16,7 @@ const postsRoute = require('./routes/posts');
 const commentsRoute = require('./routes/comments');
 const conversationsRoute = require('./routes/conversations');
 const messagesRoute = require('./routes/messages');
+const isAuthenticated = require('./middlewares/auth.middleware');
 
 const cookieOptions = {
   maxAge: 24 * 60 * 60 * 1000,
@@ -63,12 +64,12 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/api/users', usersRoute);
+app.use('/api/users', isAuthenticated, usersRoute);
 app.use('/api/auth', authRoute);
-app.use('/api/posts', postsRoute);
-app.use('/api/comments', commentsRoute);
-app.use('/api/conversations', conversationsRoute);
-app.use('/api/messages', messagesRoute);
+app.use('/api/posts', isAuthenticated, postsRoute);
+app.use('/api/comments', isAuthenticated, commentsRoute);
+app.use('/api/conversations', isAuthenticated, conversationsRoute);
+app.use('/api/messages', isAuthenticated, messagesRoute);
 
 app.use('*', (req, res, next) => {
   const error = new Error('Route not found');
